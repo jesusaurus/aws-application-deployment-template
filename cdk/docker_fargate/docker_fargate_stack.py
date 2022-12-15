@@ -1,8 +1,10 @@
-
 from aws_cdk import (Stack,
-	aws_ec2 as ec2, aws_ecs as ecs,
+	aws_ec2 as ec2, 
+	aws_ecs as ecs,
 	aws_ecs_patterns as ecs_patterns,
 	aws_ssm as ssm,
+	aws_elasticloadbalancingv2 as elbv2,
+	aws_route53 as r53,
 	Duration,
 	Tags)
 
@@ -19,6 +21,9 @@ DOCKER_IMAGE_NAME = "DOCKER_IMAGE"
 COST_CENTER = "COST_CENTER"
 COST_CENTER_TAG_NAME = "CostCenter"
 PORT_NUMBER = "PORT"
+HOST_NAME = "HOST_NAME"
+HOSTED_ZONE_NAME = "HOSTED_ZONE_NAME"
+HOSTED_ZONE_ID = "HOSTED_ZONE_ID"
 
 # The name of the environment variable that will hold the secrets
 SECRETS_MANAGER_ENV_NAME = "SECRETS_MANAGER_SECRETS"
@@ -65,6 +70,14 @@ def create_secret(scope: Construct, name: str) -> str:
     return ecs.Secret.from_secrets_manager(isecret)
     # see also: https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_ecs/Secret.html
     # see also: ecs.Secret.from_ssm_parameter(ssm.IParameter(parameter_name=name))
+def get_hosted_zone_name() -> str:
+	return os.getenv(HOSTED_ZONE_NAME)
+	
+def get_hosted_zone_id() -> str:
+	return os.getenv(HOSTED_ZONE_ID)
+	
+def get_host_name() -> str:
+	return os.getenv(HOST_NAME)
 
 class DockerFargateStack(Stack):
 
@@ -79,6 +92,7 @@ class DockerFargateStack(Stack):
         secrets = {
         	# uncomment the following to add a secret as an environment variable
         	# SECRETS_MANAGER_ENV_NAME: create_secret(self, get_secret_name())
+            SECRETS_MANAGER_ENV_NAME: create_secret(self, get_secret_name())
         }
 
         env_vars = {}
@@ -92,6 +106,8 @@ class DockerFargateStack(Stack):
     	    	   secrets = secrets,
     	    	   container_port = get_port())
 
+        zone = r53.PublicHostedZone.from_public_hosted_zone_attributes(self, id=stack_id+"_zone", hosted_zone_id=get_hosted_zone_id(), zone_name=get_hosted_zone_name())
+
         #
         # for options to pass to ApplicationLoadBalancedTaskImageOptions see:
         # https://docs.aws.amazon.com/cdk/api/v1/python/aws_cdk.aws_ecs_patterns/ApplicationLoadBalancedTaskImageOptions.html#aws_cdk.aws_ecs_patterns.ApplicationLoadBalancedTaskImageOptions
@@ -103,7 +119,9 @@ class DockerFargateStack(Stack):
             desired_count=1,            # Number of copies of the 'task' (i.e. the app') running behind the ALB
             task_image_options=task_image_options,
             memory_limit_mib=1024,      # Default is 512
-            public_load_balancer=True)  # Default is False
+            public_load_balancer=True, # Default is False
+            domain_name = get_host_name(), #The domain name for the service, e.g. “api.example.com.” )
+            domain_zone = zone)
             # TODO TLS
             #protocol=elbv2.ApplicationProtocol.HTTPS,
             #domain_name="TBD", # The domain name for the service, e.g. “api.example.com.”
