@@ -7,9 +7,9 @@ on:
   push:
 
 env:
-  IMAGE_PATH_AND_TAG: ghcr.io/sage-bionetworks/schematic:0.1.14-beta
+  IMAGE_PATH_AND_TAG: ghcr.io/sage-bionetworks/schematic:0.1.15-beta
   AWS_DEFAULT_REGION: 'us-east-1' 
-  PORT: 3001
+  PORT: 80
   COST_CENTER: "NO PROGRAM / 000000"
   STACK_NAME_PREFIX: schematic-test
   HOST_NAME: schematic.dnt-dev.sagebase.org
