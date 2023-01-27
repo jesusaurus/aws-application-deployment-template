@@ -7,7 +7,7 @@ on:
   push:
 
 env:
-  IMAGE_PATH_AND_TAG: ghcr.io/sage-bionetworks/schematic:0.1.19-beta
+  IMAGE_PATH_AND_TAG: ghcr.io/sage-bionetworks/schematic:0.1.20-beta
   AWS_DEFAULT_REGION: 'us-east-1' 
   PORT: 80
   COST_CENTER: "NO PROGRAM / 000000"
