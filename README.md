@@ -86,7 +86,7 @@ deploy applications with custom (non-AWS) domains.
 When deploying a new application (or an existing application to a new account,
 e.g. the first deploy to "prod"), first check that a certificate for the
 desired domain has been created in the account the application will be deployed
-to (e.g. [here for app.sagebionetworks.org](https://github.com/Sage-Bionetworks-IT/organizations-infra/blob/master/org-formation/100-shared-dns/_tasks.yaml#L24-L27)).
+to (e.g. [here for app.sagebionetworks.org](https://github.com/Sage-Bionetworks-IT/organizations-infra/blob/master/org-formation/100-shared-dns/_tasks.yaml#L41-L44)).
 If a certificate is needed in a new account, make a request to the IT team
 because there is a manual validation step that must be performed by an
 administrator. Set the value of `ACM_CERT_ARN` context variable to the ARN of
